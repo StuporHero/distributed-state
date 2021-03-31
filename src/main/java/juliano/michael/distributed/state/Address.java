@@ -3,8 +3,5 @@
  */
 package juliano.michael.distributed.state;
 
-public class Library {
-    public boolean someLibraryMethod() {
-        return true;
-    }
+public interface Address {
 }
