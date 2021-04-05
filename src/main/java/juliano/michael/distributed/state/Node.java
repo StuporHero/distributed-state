@@ -3,5 +3,5 @@ package juliano.michael.distributed.state;
 import java.io.InputStream;
 
 public interface Node {
-    InputStream data();
+    InputStream data() throws NoDataReturned;
 }
