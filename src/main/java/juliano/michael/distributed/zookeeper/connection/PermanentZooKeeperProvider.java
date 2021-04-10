@@ -1,5 +1,6 @@
 package juliano.michael.distributed.zookeeper.connection;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
@@ -45,6 +46,18 @@ public final class PermanentZooKeeperProvider implements ZooKeeperProvider, Auto
                 throw new IllegalStateException("Authentication to the Ensemble failed.");
         }
         return this.zooKeeper;
+    }
+
+    @Override
+    public void updateConnectString(final String connectString) {
+        this.provider.updateConnectString(connectString);
+        if (this.zooKeeper != null) {
+            try {
+                this.zooKeeper.updateServerList(connectString);
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
     }
 
     @Override

@@ -3,5 +3,5 @@
  */
 package juliano.michael.distributed.state;
 
-public interface Address {
+public interface NodeMetaData {
 }

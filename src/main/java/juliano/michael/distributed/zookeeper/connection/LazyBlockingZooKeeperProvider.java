@@ -14,7 +14,7 @@ import org.apache.zookeeper.ZooKeeper;
  * @since 0.1
  */
 public final class LazyBlockingZooKeeperProvider implements ZooKeeperProvider {
-    private final String connectString;
+    private String connectString;
     private final int sessionTimeout;
     private final int connectionTimeout;
     private final InterThreadSignal<Boolean> isConnecting;
@@ -89,5 +89,10 @@ public final class LazyBlockingZooKeeperProvider implements ZooKeeperProvider {
         } catch (final IOException | InterruptedException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    public void updateConnectString(final String connectString) {
+        this.connectString = connectString;
     }
 }

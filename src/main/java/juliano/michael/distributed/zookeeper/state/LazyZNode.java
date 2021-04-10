@@ -2,6 +2,8 @@ package juliano.michael.distributed.zookeeper.state;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Set;
+import java.util.stream.Collectors;
 import juliano.michael.distributed.state.NoDataReturned;
 import juliano.michael.distributed.zookeeper.connection.ZooKeeperProvider;
 import org.apache.zookeeper.KeeperException;
@@ -39,9 +41,9 @@ public final class LazyZNode implements ZNode {
                     this.zooKeeperProvider.get().exists(this.path, false)
                 )
             );
-        } catch (final KeeperException ignored) {
-            throw new NoDataReturned();
-        } catch (InterruptedException e) {
+        } catch (final KeeperException e) {
+            throw new NoDataReturned(e.getPath(), e);
+        } catch (final InterruptedException e) {
             throw new IllegalStateException("Interrupted.", e);
         }
     }
@@ -52,6 +54,19 @@ public final class LazyZNode implements ZNode {
             this.zooKeeperProvider.get().exists(this.path, watcher);
         } catch (final InterruptedException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    @Override
+    public Set<ZNode> children() throws NoDataReturned {
+        try {
+            return this.zooKeeperProvider.get().getChildren(this.path, false).stream()
+                .map(path -> new LazyZNode(this.zooKeeperProvider, path))
+                .collect(Collectors.toUnmodifiableSet());
+        } catch (final KeeperException e) {
+            throw new NoDataReturned(e.getPath(), e);
+        } catch (final InterruptedException e) {
+            throw new IllegalStateException("Interrupted.", e);
         }
     }
 }

@@ -1,5 +1,6 @@
 package juliano.michael.distributed.zookeeper.connection;
 
+import java.io.IOException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 
@@ -7,7 +8,12 @@ public final class SingleSessionZooKeeperProvider implements ZooKeeperProvider, 
     private final ZooKeeperProvider provider;
     private ZooKeeper zooKeeper;
 
-    public SingleSessionZooKeeperProvider(final String connectString, final int sessionTimeout, final int connectionTimeout, final Watcher watcher) {
+    public SingleSessionZooKeeperProvider(
+        final String connectString,
+        final int sessionTimeout,
+        final int connectionTimeout,
+        final Watcher watcher
+    ) {
         this.provider = new LazyBlockingZooKeeperProvider(
             connectString,
             sessionTimeout,
@@ -24,6 +30,18 @@ public final class SingleSessionZooKeeperProvider implements ZooKeeperProvider, 
             throw new IllegalStateException("Instance closed or session expired.");
         }
         return this.zooKeeper;
+    }
+
+    @Override
+    public void updateConnectString(final String connectString) {
+        this.provider.updateConnectString(connectString);
+        if (this.zooKeeper != null) {
+            try {
+                this.zooKeeper.updateServerList(connectString);
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
     }
 
     @Override
